@@ -24,21 +24,14 @@ def ask():
     if not content:
         return jsonify({"error": "Missing 'content' query param"}), 400
 
-    load_system_prompt()
-
     final_url = f"{WORKER_BASE}?content={requests.utils.quote(content)}"
     try:
-        resp = requests.get(final_url, timeout=10)
-        resp.raise_for_status()
-        answer = resp.text
+        answer = requests.get(final_url, timeout=10).text
     except Exception as e:
         answer = f"Worker error: {e}"
 
-    return jsonify({
-        "system_prompt": SYSTEM_PROMPT,
-        "user_query": content,
-        "answer": answer
-    })
+    # return ONLY the answer string
+    return answer, 200, {"Content-Type": "text/plain"}
 
 # Vercel uses WSGI entry-point "app"
 # No __main__ guard needed
